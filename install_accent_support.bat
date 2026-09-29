@@ -6,9 +6,9 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0install_accent_sup
 set "RC=%ERRORLEVEL%"
 echo.
 if "%RC%"=="0" (
-  echo Accent support setup finished.
+  echo Accent component repair/setup finished.
 ) else (
-  echo Accent support setup did not finish. You can run it again safely.
+  echo Accent component repair/setup did not finish. Run setup.bat again or retry this helper.
 )
 echo.
 pause

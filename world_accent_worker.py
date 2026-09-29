@@ -241,7 +241,7 @@ def process_world(source: Path, output: Path, accents_path: Path) -> dict:
     except ImportError as exc:
         raise RuntimeError(
             "PyWORLD is not installed in the RVC environment. "
-            "Click Install Accent support in Zundanen (or run install_accent_support.bat)."
+            "Run setup.bat again to repair the Accent components."
         ) from exc
 
     if not source.is_file():

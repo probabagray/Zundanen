@@ -1,4 +1,4 @@
-# Zundanen v1.0.0
+# Zundanen v1.1.0
 
 **[Suomi](README.md) | [日本語](README_JA.md) | English**
 
@@ -20,9 +20,9 @@ The same UI also includes **Batch Generation**, optional word-level **Accent** e
 - Model Trainer currently requires an NVIDIA CUDA GPU
 - Voice Generation can run on CPU, but may be very slow
 - Several GB of free disk space recommended
-- **Only Accent editing requires optional WSL2 + Docker Desktop**
+- **Accent in v1.1.0 uses a native Windows Aalto/Kaldi backend — WSL2 and Docker Desktop are normally not required**
 
-Normal Voice Generation, Batch Generation, and Model Trainer do not require Docker.
+Voice Generation, Batch Generation, Model Trainer, and Accent run without Docker. `setup.bat` installs the Windows-native Aalto/Kaldi Accent engine together with the normal Zundanen environment.
 
 ## Installation
 
@@ -44,11 +44,14 @@ FFmpeg
 Python 3.11 + Finnish-NLP/Chatterbox-Finnish
 Python 3.12 + RVC-WebUI
 HuBERT / RMVPE / RVC pretrained assets
+PyWORLD / WORLD vocoder
+Windows-native Aalto/Kaldi runtime
+Intel oneMKL runtime when required
 ```
 
 TTS and RVC use separate virtual environments under `runtime/`.
 
-> WSL2, Docker Desktop, Aalto alignment, and PyWORLD are not installed by the normal `setup.bat`. Install them only when needed from `Install Accent support` in the Accent section.
+> In v1.1.0, `setup.bat` also installs the Accent engine. No separate Accent installation step is required, and normal Accent use does not require WSL2 or Docker Desktop.
 
 ### Windows path length
 
@@ -142,29 +145,16 @@ runtime/rvc/exports/
 
 ## Accent
 
-Accent is optional. If its dependencies are missing, the Accent section shows:
+Accent is installed as part of the normal `setup.bat` flow. Setup installs/downloads the Windows-native Aalto/Kaldi runtime, PyWORLD/WORLD, and Intel oneMKL when the packaged Kaldi build needs it. WSL2, Docker Desktop, and the Aalto Docker image are not required.
 
-```text
-Install Accent support
-```
-
-The installer checks and adds only missing Accent components:
-
-- PyWORLD / WORLD vocoder
-- WSL2
-- Docker Desktop
-- Aalto Finnish forced-alignment Docker image
-
-Enabling WSL2 for the first time may require a Windows restart. After restarting, open Zundanen and click `Install Accent support` again to continue.
-
-Once installed, forced alignment runs automatically after Voice Generation. Zundanen aligns the Finnish text to the audio and displays syllable buttons for each word.
+After setup completes, forced alignment runs automatically after Voice Generation. Zundanen aligns the Finnish text to the audio and displays syllable buttons for each word.
 
 - choose the accented syllable for each word
 - adjust `Strength`
 - use `Reset` to clear changes
 - use `Preview` to listen to the edited result
 
-The editor uses Aalto alignment for syllable timing and WORLD/PyWORLD for the pre-RVC audio edit before running RVC.
+The editor uses native Windows Aalto/Kaldi alignment for syllable timing and WORLD/PyWORLD for the pre-RVC audio edit before running RVC.
 
 ### Import WAV
 
@@ -275,7 +265,7 @@ Run:
 powershell -ExecutionPolicy Bypass -File .\doctor.ps1
 ```
 
-The doctor checks the required TTS/RVC environment. Docker is reported only as an optional Accent component.
+The doctor checks the required TTS/RVC environment plus PyWORLD and the Windows-native Aalto/Kaldi Accent engine.
 
 ## GitHub Actions
 
@@ -293,7 +283,7 @@ On each push / pull request, GitHub checks items including:
 - Flask UI startup
 - an HTTP 200 response from `/api/state`
 
-Standard GitHub-hosted runners do not run the full CUDA TTS/RVC pipeline or Docker-based forced alignment. However, installation, TTS generation, RVC voice conversion, and Accent editing have been tested separately in a Windows 11 environment.
+Standard GitHub-hosted runners do not run the full CUDA TTS/RVC pipeline or the full Aalto/Kaldi alignment stack. The native Windows Aalto/Kaldi path has been validated on Windows 11 with Finnish TTS audio, producing word, phone, and syllable timestamps without Docker.
 
 ## Files excluded from GitHub
 

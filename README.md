@@ -1,4 +1,4 @@
-# Zundanen v1.0.0
+# Zundanen v1.1.0
 
 **Suomi | [日本語](README_JA.md) | [English](README_EN.md)**
 
@@ -20,9 +20,9 @@ Samassa käyttöliittymässä ovat **Batch Generation**, valinnainen sanakohtain
 - Model Trainer vaatii tällä hetkellä NVIDIA CUDA GPU:n
 - Voice Generation toimii myös CPU:lla, mutta voi olla hyvin hidas
 - Useita gigatavuja vapaata levytilaa suositellaan
-- **Vain Accent-muokkaus tarvitsee valinnaisesti WSL2:n ja Docker Desktopin**
+- **Accent käyttää v1.1.0:ssa Windows-natiivia Aalto/Kaldi-kohdistusta — WSL2:ta tai Docker Desktopia ei normaalisti tarvita**
 
-Tavallinen Voice Generation, Batch Generation ja Model Trainer eivät tarvitse Dockeria.
+Voice Generation, Batch Generation, Model Trainer ja Accent toimivat ilman Dockeria. `setup.bat` asentaa Windows-natiivin Aalto/Kaldi Accent-moottorin yhdessä muun Zundanen-ympäristön kanssa.
 
 ## Asennus
 
@@ -44,11 +44,14 @@ FFmpeg
 Python 3.11 + Finnish-NLP/Chatterbox-Finnish
 Python 3.12 + RVC-WebUI
 HuBERT / RMVPE / RVC pretrained assets
+PyWORLD / WORLD vocoder
+Windows-natiivi Aalto/Kaldi runtime
+Intel oneMKL runtime tarvittaessa
 ```
 
 TTS ja RVC käyttävät erillisiä virtuaaliympäristöjä `runtime/`-hakemiston alla.
 
-> WSL2:ta, Docker Desktopia, Aalto-kohdistusta ja PyWORLDia ei asenneta normaalilla `setup.bat`-ajolla. Ne voi lisätä tarvittaessa Accent-osion `Install Accent support` -painikkeella.
+> v1.1.0:ssa `setup.bat` asentaa myös Accent-moottorin. Erillistä Accent-asennusta ei tarvita, eikä normaali Accent-käyttö vaadi WSL2:ta tai Docker Desktopia.
 
 ### Windowsin polkupituus
 
@@ -142,29 +145,16 @@ runtime/rvc/exports/
 
 ## Accent
 
-Accent on valinnainen ominaisuus. Jos riippuvuudet puuttuvat, Accent-osiossa näkyy:
+Accent asennetaan osana normaalia `setup.bat`-asennusta. Setup valmistelee Windows-natiivin Aalto/Kaldi-runtimen, PyWORLD/WORLDin sekä tarvittaessa Intel oneMKL -runtimen. WSL2:ta, Docker Desktopia tai Aalto-Docker-kuvaa ei tarvita.
 
-```text
-Install Accent support
-```
-
-Asennin tarkistaa ja lisää vain puuttuvat Accent-komponentit:
-
-- PyWORLD / WORLD vocoder
-- WSL2
-- Docker Desktop
-- Aalto Finnish forced alignment -Docker image
-
-WSL2:n ensimmäinen käyttöönotto voi vaatia Windowsin uudelleenkäynnistyksen. Käynnistyksen jälkeen avaa Zundanen ja paina `Install Accent support` uudelleen.
-
-Kun Accent support on asennettu, puheen kohdistus käynnistyy automaattisesti Voice Generationin jälkeen. Zundanen kohdistaa suomenkielisen tekstin ääneen ja näyttää tavupainikkeet jokaiselle sanalle.
+Asennuksen jälkeen puheen kohdistus käynnistyy automaattisesti Voice Generationin jälkeen. Zundanen kohdistaa suomenkielisen tekstin ääneen ja näyttää tavupainikkeet jokaiselle sanalle.
 
 - valitse sanan aksenttitavu
 - säädä `Strength`
 - palauta muutokset `Reset`-painikkeella
 - kuuntele tulos `Preview` -painikkeella
 
-Aalto-kohdistus määrittää tavujen ajoituksen. WORLD/PyWORLD muokkaa RVC:tä edeltävää ääntä, jonka jälkeen RVC ajetaan.
+Windows-natiivi Aalto/Kaldi-kohdistus määrittää tavujen ajoituksen. WORLD/PyWORLD muokkaa RVC:tä edeltävää ääntä, jonka jälkeen RVC ajetaan.
 
 ### Import WAV
 
@@ -275,7 +265,7 @@ Suorita:
 powershell -ExecutionPolicy Bypass -File .\doctor.ps1
 ```
 
-Doctor tarkistaa normaalitoimintojen vaatiman TTS/RVC-ympäristön. Docker näytetään vain valinnaisena Accent-komponenttina.
+Doctor tarkistaa TTS/RVC-ympäristön lisäksi PyWORLDin ja Windows-natiivin Aalto/Kaldi Accent-moottorin.
 
 ## GitHub Actions
 
@@ -293,7 +283,7 @@ Pushin ja pull requestin yhteydessä GitHub tarkistaa automaattisesti muun muass
 - Flask-käyttöliittymän käynnistymisen
 - `/api/state`-rajapinnan HTTP 200 -vastauksen
 
-Tavallinen GitHub-hosted runner ei testaa varsinaista CUDA-TTS/RVC-generointia eikä Docker-pohjaista puheen kohdistusta. Asennus, TTS-generointi, RVC-äänimuunnos sekä Accent-muokkaus on kuitenkin testattu erikseen Windows 11 -ympäristössä.
+Tavallinen GitHub-hosted runner ei testaa varsinaista CUDA-TTS/RVC-generointia eikä täyttä Aalto/Kaldi-kohdistusta. Windows-natiivi Aalto/Kaldi-polku on validoitu Windows 11:ssä Finnish TTS -äänellä siten, että word/phone/syllable-timestampit muodostuvat ilman Dockeria.
 
 ## Mitä GitHubiin ei tallenneta
 

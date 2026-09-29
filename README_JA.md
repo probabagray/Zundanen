@@ -1,4 +1,4 @@
-# Zundanen v1.0.0
+# Zundanen v1.1.0
 
 **[Suomi](README.md) | 日本語 | [English](README_EN.md)**
 
@@ -20,9 +20,9 @@ Zundanen は，フィンランド語テキストを **Finnish-NLP/Chatterbox-Fin
 - Model Trainer は現在 NVIDIA CUDA GPU 必須
 - Voice Generation は CPU でも起動できますが，生成は非常に遅くなる場合があります
 - 数 GB 以上の空き容量を推奨
-- **Accent 編集のみ任意で WSL2 + Docker Desktop が必要**
+- **v1.1.0 の Accent は Windows ネイティブ Aalto/Kaldi を使用し，通常は WSL2 / Docker Desktop 不要**
 
-通常の Voice Generation / Batch Generation / Model Trainer に Docker は不要です．
+Voice Generation / Batch Generation / Model Trainer / Accent はすべて Docker なしで動作します．`setup.bat` が Windows ネイティブ Aalto/Kaldi の Accent エンジンまで通常環境と一緒に導入します．
 
 ## インストール
 
@@ -44,11 +44,14 @@ FFmpeg
 Python 3.11 + Finnish-NLP/Chatterbox-Finnish
 Python 3.12 + RVC-WebUI
 HuBERT / RMVPE / RVC pretrained assets
+PyWORLD / WORLD vocoder
+Windows ネイティブ Aalto/Kaldi runtime
+必要な場合は Intel oneMKL runtime
 ```
 
 TTS と RVC はプロジェクト内の `runtime/` 以下に別々の仮想環境として構築されます．
 
-> Accent 用の WSL2 / Docker Desktop / Aalto alignment / PyWORLD は通常の `setup.bat` ではインストールしません．Accent 欄の `Install Accent support` から必要な人だけ追加できます．
+> v1.1.0 では `setup.bat` が Accent エンジンも同時に導入します．Accent 用の別インストール操作は不要で，通常利用に WSL2 / Docker Desktop は必要ありません．
 
 ### Windows のパス長
 
@@ -142,29 +145,16 @@ runtime/rvc/exports/
 
 ## Accent
 
-Accent は任意機能です．未導入の場合，Accent 欄に次のボタンが表示されます．
+Accent は通常の `setup.bat` の一部として導入されます．セットアップ時に Windows ネイティブ Aalto/Kaldi runtime，PyWORLD/WORLD，および必要な場合は Intel oneMKL runtime を自動で準備します．WSL2 / Docker Desktop / Aalto Docker image は不要です．
 
-```text
-Install Accent support
-```
-
-このボタンは不足している Accent 用コンポーネントだけを確認・導入します．
-
-- PyWORLD / WORLD vocoder
-- WSL2
-- Docker Desktop
-- Aalto Finnish forced alignment 用Docker image
-
-WSL2 の初回有効化では Windows 再起動が必要になる場合があります．その場合は再起動後に Zundanen を開き，`Install Accent support` をもう一度押してください．
-
-Accent support 導入後は，Voice Generation で音声を生成すると自動でフィンランド語テキストと音声を強制アライメントし，単語ごとの音節ボタンが表示されます．
+セットアップ完了後は，Voice Generation で音声を生成すると自動でフィンランド語テキストと音声を強制アライメントし，単語ごとの音節ボタンが表示されます．
 
 - 各単語でアクセントを置く音節を選択
 - `Strength` で強さを調整
 - `Reset` で設定を戻す
 - `Preview` で編集結果を試聴
 
-Accent 編集では Aalto alignment で音節位置を取得し，WORLD/PyWORLD で RVC 前の音声を編集してから RVC 変換します．
+Accent 編集では Windows ネイティブ Aalto/Kaldi で音節位置を取得し，WORLD/PyWORLD で RVC 前の音声を編集してから RVC 変換します．
 
 ### Import WAV
 
@@ -275,7 +265,7 @@ runtime/rvc/exports/<Character>/<Character>.index
 powershell -ExecutionPolicy Bypass -File .\doctor.ps1
 ```
 
-通常機能に必要な TTS/RVC 環境を確認し，Docker は Accent 用の任意項目として表示します．
+通常機能に必要な TTS/RVC 環境に加え，PyWORLD と Windows ネイティブ Aalto/Kaldi Accent エンジンの状態を確認します．
 
 ## GitHub Actions
 
@@ -295,7 +285,7 @@ push / pull request ごとにGitHub側で，
 
 を自動チェックします．
 
-通常の GitHub-hosted runner では CUDA を使った実際の TTS/RVC 生成や Docker を使う強制アライメントまではテストしません．ただし，インストール，TTS 生成，RVC 音声変換，Accent 編集については Windows 11 環境で別途動作確認済みです．
+通常の GitHub-hosted runner では CUDA を使った実際の TTS/RVC 生成や Aalto/Kaldi 全体の強制アライメントまではテストしません．Windows ネイティブ Aalto/Kaldi 経路は Windows 11 上の Finnish TTS 音声で検証し，Docker なしで word / phone / syllable のタイムスタンプ生成まで確認済みです．
 
 ## GitHub へ含めないもの
 

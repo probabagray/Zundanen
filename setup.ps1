@@ -315,7 +315,7 @@ if ($CI) {
     Invoke-Native $python @("-m", "venv", $ciVenv)
     $ciPy = Join-Path $ciVenv "Scripts\python.exe"
     Invoke-Native $ciPy @("-m", "pip", "install", "--disable-pip-version-check", "flask>=3.0,<4")
-    Invoke-Native $ciPy @("-m", "py_compile", (Join-Path $Root "app.py"), (Join-Path $Root "tts_worker.py"), (Join-Path $Root "trainer_worker.py"), (Join-Path $Root "desktop_launcher.py"))
+    Invoke-Native $ciPy @("-m", "py_compile", (Join-Path $Root "app.py"), (Join-Path $Root "tts_worker.py"), (Join-Path $Root "trainer_worker.py"), (Join-Path $Root "desktop_launcher.py"), (Join-Path $Root "aalto_alignment.py"), (Join-Path $Root "aalto_native_alignment.py"), (Join-Path $Root "aalto_native_probe.py"), (Join-Path $Root "world_accent_worker.py"))
     Write-Host "CI smoke setup OK" -ForegroundColor Green
     exit 0
 }
@@ -323,8 +323,7 @@ if ($CI) {
 Start-SetupSleepPrevention
 
 try {
-# Zundanen v1.0.0 setup
-Write-Host "Zundanen v1.0.0 - clean Windows setup" -ForegroundColor Green
+Write-Host "Zundanen v1.1.0 - clean Windows setup" -ForegroundColor Green
 Write-Host "This creates isolated TTS and RVC environments under: $Runtime"
 Write-Host "Large model files and PyTorch packages will be downloaded."
 
@@ -351,7 +350,7 @@ if ($Force -and (Test-Path $Runtime)) {
 }
 New-Item -ItemType Directory -Force -Path $Runtime, $TtsRoot, $RvcRoot, $Exports | Out-Null
 
-Write-Step "1 / 8  Installing Windows prerequisites"
+Write-Step "1 / 9  Installing Windows prerequisites"
 if (-not (Get-Command winget.exe -ErrorAction SilentlyContinue)) {
     throw "WinGet was not found. Install/repair 'App Installer' from Microsoft Store, then run setup.bat again."
 }
@@ -378,7 +377,7 @@ if ($gpu.Mode -eq "cpu") {
     Write-Warning "No NVIDIA GPU detected. Voice Generation can fall back to CPU, but Model Trainer currently requires NVIDIA CUDA."
 }
 
-Write-Step "2 / 8  Preparing Finnish Chatterbox source"
+Write-Step "2 / 9  Preparing Finnish Chatterbox source"
 if (-not (Test-Path (Join-Path $TtsRepo ".git"))) {
     if (Test-Path $TtsRepo) { Remove-Item $TtsRepo -Recurse -Force }
     $oldSkip = $env:GIT_LFS_SKIP_SMUDGE
@@ -394,7 +393,7 @@ if (-not (Test-Path (Join-Path $TtsRepo ".git"))) {
     Write-Host "Chatterbox-Finnish source already exists; keeping it."
 }
 
-Write-Step "3 / 8  Creating Finnish TTS environment"
+Write-Step "3 / 9  Creating Finnish TTS environment"
 if (-not (Test-Path (Join-Path $TtsVenv "Scripts\python.exe"))) {
     Invoke-Native $Py311 @("-m", "venv", $TtsVenv)
 }
@@ -419,7 +418,7 @@ Invoke-Native $TtsPython @("-m", "pip", "install", "-r", $TtsRequirements)
 Invoke-Native $TtsPython @("-m", "pip", "install", "huggingface_hub>=0.26,<1.0", "flask>=3.0,<4", "pywebview==6.2.1")
 Invoke-Native $TtsPython @("-m", "pip", "install", "setuptools==80.9.0")
 
-Write-Step "4 / 8  Downloading Finnish TTS weights"
+Write-Step "4 / 9  Downloading Finnish TTS weights"
 $TtsHf = Join-Path $TtsVenv "Scripts\hf.exe"
 if (-not (Test-Path $TtsHf)) { throw "hf.exe was not installed in the TTS environment." }
 $FineTuneWeight = Join-Path $TtsRepo "models\best_finnish_multilingual_cp986.safetensors"
@@ -440,7 +439,7 @@ if ($needReference) {
 }
 Invoke-Native $TtsPython @("setup.py") $TtsRepo
 
-Write-Step "5 / 8  Preparing RVC source"
+Write-Step "5 / 9  Preparing RVC source"
 if (-not (Test-Path (Join-Path $RvcRepo ".git"))) {
     if (Test-Path $RvcRepo) { Remove-Item $RvcRepo -Recurse -Force }
     Invoke-Native $Git @("clone", "--depth", "1", "https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI.git", $RvcRepo)
@@ -452,7 +451,7 @@ if (-not (Test-Path (Join-Path $RvcRepo ".git"))) {
 # always inheriting the Windows display language through locale.getdefaultlocale().
 Invoke-Native $TtsPython @("-c", "import sys; sys.path.insert(0, r'$Root'); from rvc_locale import ensure_rvc_language_override; print('RVC locale patch applied:', ensure_rvc_language_override(r'$RvcRepo'))")
 
-Write-Step "6 / 8  Creating RVC environment"
+Write-Step "6 / 9  Creating RVC environment"
 if (-not (Test-Path (Join-Path $RvcVenv "Scripts\python.exe"))) {
     Invoke-Native $Py312 @("-m", "venv", $RvcVenv)
 }
@@ -480,7 +479,7 @@ Set-Content -Path $RvcReqOfficial -Value $content -Encoding UTF8
 Invoke-Native $RvcPython @("-m", "pip", "install", "-r", $RvcReqOfficial)
 Invoke-Native $RvcPython @("-m", "pip", "install", "huggingface_hub>=0.26,<1.0")
 
-Write-Step "7 / 8  Downloading RVC base assets"
+Write-Step "7 / 9  Downloading RVC base assets"
 $RvcHf = Join-Path $RvcVenv "Scripts\hf.exe"
 if (-not (Test-Path $RvcHf)) { throw "hf.exe was not installed in the RVC environment." }
 Invoke-Native $RvcHf @("download", "lj1995/VoiceConversionWebUI", "--revision", "main", "--include", "hubert_base/*", "--local-dir", (Join-Path $RvcRepo "assets"))
@@ -495,9 +494,17 @@ New-Item -ItemType Directory -Force -Path $MuteDest | Out-Null
 Invoke-Native $RvcPython @("-m", "zipfile", "-e", $MuteZip, $MuteDest)
 New-Item -ItemType Directory -Force -Path (Join-Path $RvcRepo "assets\weights"), (Join-Path $RvcRepo "assets\indices"), $Exports | Out-Null
 
-Write-Step "8 / 8  Verifying installation"
+Write-Step "8 / 9  Installing Accent engine"
+$AccentSetup = Join-Path $Root "install_accent_support.ps1"
+if (-not (Test-Path $AccentSetup)) { throw "install_accent_support.ps1 is missing." }
+$WindowsPowerShell = Join-Path $env:SystemRoot "System32\WindowsPowerShell\v1.0\powershell.exe"
+Invoke-Native $WindowsPowerShell @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", $AccentSetup)
+
+Write-Step "9 / 9  Verifying installation"
 Invoke-Native $TtsPython @("-c", "import torch, flask, soundfile, safetensors; print('TTS torch:', torch.__version__); print('TTS CUDA:', torch.cuda.is_available())")
 Invoke-Native $RvcPython @("-c", "import torch, faiss, librosa, numpy; print('RVC torch:', torch.__version__); print('RVC CUDA:', torch.cuda.is_available()); print('NumPy:', numpy.__version__); print('FAISS: OK')")
+Invoke-Native $RvcPython @("-c", "import pyworld; print('PyWORLD:', pyworld.__version__)")
+Invoke-Native $RvcPython @((Join-Path $Root "aalto_native_probe.py"))
 Invoke-Native (Join-Path $env:SystemRoot "System32\WindowsPowerShell\v1.0\powershell.exe") @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", (Join-Path $Root "doctor.ps1"))
 
 Set-Content -Path (Join-Path $Runtime ".setup-complete") -Value (Get-Date -Format o) -Encoding UTF8

@@ -22,7 +22,7 @@ body{
 button,input,select,textarea{font:inherit}
 .shell{max-width:1240px;margin:auto;padding:30px 28px 42px}
 header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;gap:16px}
-.brand h1{font-size:30px;letter-spacing:-.7px;margin:0 0 4px}.brand p{margin:0;color:var(--muted);font-size:13px}
+.brandTitleRow{display:flex;align-items:baseline;gap:9px;margin-bottom:4px}.brand h1{font-size:30px;letter-spacing:-.7px;margin:0}.brandVersion{font-size:12px;font-weight:750;letter-spacing:.2px;color:var(--muted)}.brand p{margin:0;color:var(--muted);font-size:13px}
 .badges{display:flex;align-items:center;gap:10px}.badge{padding:8px 13px;border:1px solid #20483f;border-radius:999px;color:#75dfc1;background:#10251f;font-size:12px;font-weight:700}
 .iconbtn,.secondary{border:1px solid var(--line);background:#121a27;color:#c4cddd;border-radius:12px;padding:9px 13px;cursor:pointer;text-decoration:none;transition:.18s}
 .langselect{width:auto;min-width:105px;background:#121a27;color:#c4cddd;border:1px solid var(--line);border-radius:12px;padding:9px 30px 9px 11px;cursor:pointer}
@@ -61,7 +61,7 @@ input[type=range]{width:100%;accent-color:var(--accent);margin-top:9px}.generate
 <body>
 <div class="shell">
   <header>
-    <div class="brand"><h1>Zundanen</h1><p>Finnish TTS &nbsp;→&nbsp; RVC Character Voice</p></div>
+    <div class="brand"><div class="brandTitleRow"><h1>Zundanen</h1><span class="brandVersion">v1.1.0</span></div><p>Finnish TTS &nbsp;→&nbsp; RVC Character Voice</p></div>
     <div class="badges"><div class="badge">● LOCAL PIPELINE</div><select class="langselect" id="helpLanguage" aria-label="Help language"><option value="fi">Suomi</option><option value="ja">日本語</option><option value="en">English</option></select><button class="iconbtn" onclick="openSettings()">⚙ Settings</button></div>
   </header>
 
@@ -85,12 +85,9 @@ input[type=range]{width:100%;accent-color:var(--accent);margin-top:9px}.generate
           <div id="accentInstallPanel" style="display:none">
             <div class="sub" data-help="accentSupportMissing"></div>
             <div class="hint" data-help="accentSupportInstallHelp"></div>
-            <div class="accentTopActions"><button class="secondary" id="installAccentSupport" type="button" onclick="installAccentSupport()">Install Accent support</button></div>
-            <div class="status" id="accentInstallStatus"></div>
           </div>
           <div id="accentEditorPanel">
             <div class="sub" data-help="alignmentIntro"></div>
-            <div class="hint" data-help="alignmentDockerHelp"></div>
             <div class="status" id="alignmentStatus"></div>
             <div class="accentTopActions"><button class="secondary" id="analyzeAccent" type="button" style="display:none" onclick="runAccentAnalysis(true)" data-help="analyzeAccent">Analyze accent</button></div>
             <div id="alignmentResult"></div>
@@ -217,13 +214,13 @@ let datasetInfoState={type:"formats",count:0,message:""};
 let batchMode="lines", lastBatchLog=[], batchCsvHeader="filename,text,character,pitch,index_rate,protect,expression,seed";
 let batchOptionsSyncedQueueId=null;
 let alignmentSyllables=[], alignmentAccentWords=[];
-let accentSupportInstalled=false, accentSupportPollTimer=null;
+let accentSupportInstalled=false;
 const $=id=>document.getElementById(id);
 const labels={chatterbox_repo:"Chatterbox repo",chatterbox_weights:"Finnish weights",reference_audio:"Reference audio",rvc_python:"RVC Python",rvc_repo:"RVC repo",exports_root:"RVC exports"};
 
 const helpTexts={
   fi:{
-    voiceIntro:"Kirjoita teksti suomeksi. Syötetty teksti muunnetaan suoraan valitun hahmon ääneksi.",alignmentIntro:"Puheen kohdistus käynnistyy automaattisesti äänen generoinnin jälkeen. Valitse sanakohtainen aksenttitavu ja säädä voimakkuutta.",alignmentDockerHelp:"Puheen kohdistus vaatii Docker Desktopin. Ensimmäinen kohdistus voi kestää kauemmin tarvittavan Docker-kuvan lataamisen vuoksi.",alignmentReady:"Puheen kohdistus käynnistyy automaattisesti.",alignmentRunning:"Kohdistetaan puhetta… Ensimmäinen kohdistus voi kestää kauemmin Docker-kuvan lataamisen vuoksi.",alignmentComplete:"Puheen kohdistus valmis.",alignmentWord:"Sana",alignmentPhone:"Foneemi",alignmentSyllable:"Tavu",alignmentWords:"Sanat",alignmentPhones:"Foneemit",alignmentSyllables:"Tavut",alignmentStart:"Alku",alignmentEnd:"Loppu",alignmentDuration:"Kesto",alignmentMeanF0:"F0-mediaani",alignmentF0Note:"F0: pYIN, soinnilliset kehykset; poikkeamat poistettu; mediaani",alignmentF0Warning:"F0-varoitus",alignmentF0Outlier:"poikkeava / epävarma",alignmentSource:"Lähde",alignmentTranscript:"Tavutus (alkuperäinen teksti)",alignmentPitchEdit:"Aksentti",alignmentLengthEdit:"Voimakkuus",alignmentPitchReset:"Ei muutosta",alignmentPitchResetAll:"Nollaa",alignmentPitchPreview:"Esikuuntele aksentti",alignmentPitchRendering:"Luodaan aksenttimuokattua ääntä WORLDilla…",alignmentPitchComplete:"Aksenttiesikatselu valmis.",alignmentPitchHint:"Valitse sanan aksenttitavu ja säädä aksentin voimakkuutta liukusäätimellä. 0 % ei muuta ääntä; 100 % käyttää voimakkainta aksenttia.",alignmentAccentWeak:"Heikko",alignmentAccentNormal:"Normaali",alignmentAccentStrong:"Vahva",alignmentAccentNone:"Ei muutosta",alignmentAccentWord:"Sana",alignmentAccentDetails:"Tekniset tiedot",importWav:"Import WAV",analyzeAccent:"Kohdista puhetta",importingWav:"Tuodaan WAV-tiedostoa…",importWavTxtComplete:"WAV + TXT tuotu",importWavComplete:"WAV tuotu",enterFinnishText:"Syötä vastaava suomenkielinen teksti ja valitse Kohdista puhetta.",accentSupportMissing:"Aksentti-tuki ei ole asennettu.",accentSupportInstallHelp:"Aksentin muokkaus tarvitsee WSL2:n, Docker Desktopin, Aalto-kohdistuksen ja PyWORLDin. Asenna puuttuvat osat automaattisesti.",accentSupportInstalling:"Aksentti-tuen asennus on käynnissä erillisessä ikkunassa…",accentSupportInstallerOpened:"Aksentti-tuen asennusohjelma avattiin. Suorita sen vaiheet loppuun tässä ikkunassa.",accentSupportReboot:"Windows on käynnistettävä uudelleen Aksentti-tuen asennuksen jatkamiseksi. Käynnistä uudelleen ja paina samaa painiketta uudelleen.",accentSupportInstallFailed:"Aksentti-tuen asennus ei valmistunut. Voit yrittää uudelleen painamalla asennuspainiketta.",
+    voiceIntro:"Kirjoita teksti suomeksi. Syötetty teksti muunnetaan suoraan valitun hahmon ääneksi.",alignmentIntro:"Puheen kohdistus käynnistyy automaattisesti äänen generoinnin jälkeen. Valitse sanakohtainen aksenttitavu ja säädä voimakkuutta.",alignmentReady:"Puheen kohdistus käynnistyy automaattisesti.",alignmentRunning:"Kohdistetaan puhetta Windows-natiivilla Aalto/Kaldilla…",alignmentComplete:"Puheen kohdistus valmis.",alignmentInputError:"Accent-käsittely epäonnistui. Tarkista syötetty teksti. Numeroita ja erikoismerkkejä ei voida tavuttaa.",alignmentWord:"Sana",alignmentPhone:"Foneemi",alignmentSyllable:"Tavu",alignmentWords:"Sanat",alignmentPhones:"Foneemit",alignmentSyllables:"Tavut",alignmentStart:"Alku",alignmentEnd:"Loppu",alignmentDuration:"Kesto",alignmentMeanF0:"F0-mediaani",alignmentF0Note:"F0: pYIN, soinnilliset kehykset; poikkeamat poistettu; mediaani",alignmentF0Warning:"F0-varoitus",alignmentF0Outlier:"poikkeava / epävarma",alignmentSource:"Lähde",alignmentTranscript:"Tavutus (alkuperäinen teksti)",alignmentPitchEdit:"Aksentti",alignmentLengthEdit:"Voimakkuus",alignmentPitchReset:"Ei muutosta",alignmentPitchResetAll:"Nollaa",alignmentPitchPreview:"Esikuuntele aksentti",alignmentPitchRendering:"Luodaan aksenttimuokattua ääntä WORLDilla…",alignmentPitchComplete:"Aksenttiesikatselu valmis.",alignmentPitchHint:"Valitse sanan aksenttitavu ja säädä aksentin voimakkuutta liukusäätimellä. 0 % ei muuta ääntä; 100 % käyttää voimakkainta aksenttia.",alignmentAccentWeak:"Heikko",alignmentAccentNormal:"Normaali",alignmentAccentStrong:"Vahva",alignmentAccentNone:"Ei muutosta",alignmentAccentWord:"Sana",alignmentAccentDetails:"Tekniset tiedot",importWav:"Import WAV",analyzeAccent:"Kohdista puhetta",importingWav:"Tuodaan WAV-tiedostoa…",importWavTxtComplete:"WAV + TXT tuotu",importWavComplete:"WAV tuotu",enterFinnishText:"Syötä vastaava suomenkielinen teksti ja valitse Kohdista puhetta.",accentSupportMissing:"Aksenttimoottori ei ole valmis.",accentSupportInstallHelp:"Aksenttimoottori asennetaan automaattisesti setup.bat-tiedoston mukana. Suorita setup.bat uudelleen. WSL2:ta tai Docker Desktopia ei tarvita.",accentSupportInstalling:"Aksentti-tuen asennus on käynnissä erillisessä ikkunassa…",accentSupportInstallerOpened:"Aksentti-tuen asennusohjelma avattiin. Suorita sen vaiheet loppuun tässä ikkunassa.",accentSupportReboot:"Windows on käynnistettävä uudelleen Aksentti-tuen asennuksen jatkamiseksi. Käynnistä uudelleen ja paina samaa painiketta uudelleen.",accentSupportInstallFailed:"Aksentti-tuen asennus ei valmistunut. Voit yrittää uudelleen painamalla asennuspainiketta.",
     batchIntro:"Luo pitkä äänijono automaattisesti. Halutessasi jokaiselle .wav-tiedostolle voidaan luoda myös samanniminen .txt-tiedosto tekstitystyön tueksi. Jono voidaan jättää ajettavaksi esimerkiksi yön yli, ja Windowsin lepotila estetään käsittelyn ajaksi.",
     batchLinesHelp:"Yksi ei-tyhjä rivi = yksi .wav-tiedosto (esim. 001_seed123456.wav). Jos Create subtitle TXT on käytössä, samalla luodaan samanniminen .txt-tiedosto. Kaikki rivit käyttävät alla olevia oletusasetuksia.",
     batchCsvHelp:"CSV-sarakkeet: filename,text,character,pitch,index_rate,protect,expression,seed. Vain text on pakollinen. filename on valinnainen: tyhjä kenttä tuottaa esimerkiksi 001_seed123456.wav, ja intro tuottaa 001_intro_seed123456.wav. seed on valinnainen: tyhjä kenttä käyttää Batch-näkymän Seed / Fix seed -asetusta, ja numero kiinnittää kyseisen rivin TTS-seedin.",
@@ -275,7 +272,7 @@ const helpTexts={
     stopConfirm:"Pysäytetäänkö nykyinen koulutus?"
   },
   ja:{
-    voiceIntro:"フィンランド語の文章を入力すると、そのまま選択したキャラクター音声に変換します。",alignmentIntro:"音声生成後に強制アライメントを自動で行います。単語ごとにアクセントを置く音節を選び、強さを調整できます。",alignmentDockerHelp:"強制アライメントにはDocker Desktopが必要です。初回は必要なDockerイメージの取得で時間がかかる場合があります。",alignmentReady:"強制アライメントは音声生成後に自動で開始します。",alignmentRunning:"強制アライメントを実行中… 初回はDockerイメージの取得で時間がかかる場合があります。",alignmentComplete:"強制アライメント完了",alignmentWord:"単語",alignmentPhone:"音素",alignmentSyllable:"音節",alignmentWords:"単語",alignmentPhones:"音素",alignmentSyllables:"音節",alignmentStart:"開始",alignmentEnd:"終了",alignmentDuration:"長さ",alignmentMeanF0:"F0中央値",alignmentF0Note:"F0: pYIN（有声音のみ・外れ値除外・中央値）",alignmentF0Warning:"F0警告",alignmentF0Outlier:"外れ値 / 判定不確実",alignmentSource:"対象",alignmentTranscript:"音節区切り（入力テキスト）",alignmentPitchEdit:"アクセント",alignmentLengthEdit:"強さ",alignmentPitchReset:"変更なし",alignmentPitchResetAll:"リセット",alignmentPitchPreview:"アクセントをプレビュー",alignmentPitchRendering:"WORLDでアクセント音声を生成中…",alignmentPitchComplete:"アクセントプレビューが完成しました。",alignmentPitchHint:"単語ごとにアクセント音節を選び、スライダーで強さを調整します。0%では音声を変更せず、100%で最大のアクセントを適用します。",alignmentAccentWeak:"弱",alignmentAccentNormal:"普通",alignmentAccentStrong:"強",alignmentAccentNone:"変更なし",alignmentAccentWord:"単語",alignmentAccentDetails:"技術情報",importWav:"WAVを読み込む",analyzeAccent:"強制アライメントを実行",importingWav:"WAVを読み込み中…",importWavTxtComplete:"WAV + TXTを読み込みました",importWavComplete:"WAVを読み込みました",enterFinnishText:"対応するフィンランド語テキストを入力して、強制アライメントを実行してください。",accentSupportMissing:"Accent support がインストールされていません。",accentSupportInstallHelp:"アクセント編集には WSL2、Docker Desktop、Aalto alignment、PyWORLD が必要です。不足しているものだけ自動でインストールします。",accentSupportInstalling:"別ウィンドウで Accent support をインストールしています…",accentSupportInstallerOpened:"Accent support のインストーラを開きました。表示されたウィンドウの手順を完了してください。",accentSupportReboot:"Accent support のセットアップを続けるには Windows の再起動が必要です。再起動後、同じボタンをもう一度押してください。",accentSupportInstallFailed:"Accent support のインストールが完了していません。インストールボタンから再試行できます。",
+    voiceIntro:"フィンランド語の文章を入力すると、そのまま選択したキャラクター音声に変換します。",alignmentIntro:"音声生成後に強制アライメントを自動で行います。単語ごとにアクセントを置く音節を選び、強さを調整できます。",alignmentReady:"強制アライメントは音声生成後に自動で開始します。",alignmentRunning:"Windows ネイティブ Aalto/Kaldi で強制アライメントを実行中…",alignmentComplete:"強制アライメント完了",alignmentInputError:"Accent処理に失敗しました。入力したテキストを確認してください。数字や特殊記号は音節分解できません。",alignmentWord:"単語",alignmentPhone:"音素",alignmentSyllable:"音節",alignmentWords:"単語",alignmentPhones:"音素",alignmentSyllables:"音節",alignmentStart:"開始",alignmentEnd:"終了",alignmentDuration:"長さ",alignmentMeanF0:"F0中央値",alignmentF0Note:"F0: pYIN（有声音のみ・外れ値除外・中央値）",alignmentF0Warning:"F0警告",alignmentF0Outlier:"外れ値 / 判定不確実",alignmentSource:"対象",alignmentTranscript:"音節区切り（入力テキスト）",alignmentPitchEdit:"アクセント",alignmentLengthEdit:"強さ",alignmentPitchReset:"変更なし",alignmentPitchResetAll:"リセット",alignmentPitchPreview:"アクセントをプレビュー",alignmentPitchRendering:"WORLDでアクセント音声を生成中…",alignmentPitchComplete:"アクセントプレビューが完成しました。",alignmentPitchHint:"単語ごとにアクセント音節を選び、スライダーで強さを調整します。0%では音声を変更せず、100%で最大のアクセントを適用します。",alignmentAccentWeak:"弱",alignmentAccentNormal:"普通",alignmentAccentStrong:"強",alignmentAccentNone:"変更なし",alignmentAccentWord:"単語",alignmentAccentDetails:"技術情報",importWav:"WAVを読み込む",analyzeAccent:"強制アライメントを実行",importingWav:"WAVを読み込み中…",importWavTxtComplete:"WAV + TXTを読み込みました",importWavComplete:"WAVを読み込みました",enterFinnishText:"対応するフィンランド語テキストを入力して、強制アライメントを実行してください。",accentSupportMissing:"Accent エンジンのセットアップが完了していません。",accentSupportInstallHelp:"Accent エンジンは setup.bat で自動導入されます。setup.bat をもう一度実行してください。WSL2 / Docker Desktop は不要です。",accentSupportInstalling:"別ウィンドウで Accent support をインストールしています…",accentSupportInstallerOpened:"Accent support のインストーラを開きました。表示されたウィンドウの手順を完了してください。",accentSupportReboot:"Accent support のセットアップを続けるには Windows の再起動が必要です。再起動後、同じボタンをもう一度押してください。",accentSupportInstallFailed:"Accent support のインストールが完了していません。インストールボタンから再試行できます。",
     batchIntro:"大量の文章を順番に自動生成します。必要に応じて各.wavファイルと同名の.txtファイルも作成でき、字幕作成などの動画編集ワークフローに利用できます。夜間などに連続実行でき、処理中はWindowsのスリープを防止します。",
     batchLinesHelp:"空行を除き、1行 = 1つの.wavファイルとして 001_seed123456.wav のように生成します。Create subtitle TXT がONの場合は同名の.txtファイルも作成します。全行に下のデフォルト設定を使います。",
     batchCsvHelp:"CSV列: filename,text,character,pitch,index_rate,protect,expression,seed。必須は text だけです。filename は任意で、空欄なら 001_seed123456.wav、intro なら 001_intro_seed123456.wav のように保存されます。seed は任意で、空欄ならBatch画面のSeed / Fix seed設定を使い、数値を入れるとその行のTTS Seedを固定します。",
@@ -327,7 +324,7 @@ const helpTexts={
     stopConfirm:"現在の学習を停止しますか？"
   },
   en:{
-    voiceIntro:"Enter Finnish text to convert it directly into the selected character voice.",alignmentIntro:"Forced alignment runs automatically after voice generation. Choose the accented syllable for each word and adjust its strength.",alignmentDockerHelp:"Forced alignment requires Docker Desktop. The first alignment may take longer while the required Docker image is downloaded.",alignmentReady:"Forced alignment starts automatically after voice generation.",alignmentRunning:"Aligning speech… The first alignment may take longer while the Docker image is downloaded.",alignmentComplete:"Forced alignment complete.",alignmentWord:"Word",alignmentPhone:"Phone",alignmentSyllable:"Syllable",alignmentWords:"Words",alignmentPhones:"Phones",alignmentSyllables:"Syllables",alignmentStart:"Start",alignmentEnd:"End",alignmentDuration:"Duration",alignmentMeanF0:"Median F0",alignmentF0Note:"F0: pYIN, voiced frames only; outliers rejected; median",alignmentF0Warning:"F0 warning",alignmentF0Outlier:"outlier / uncertain",alignmentSource:"Source",alignmentTranscript:"Syllabified input text",alignmentPitchEdit:"Accent",alignmentLengthEdit:"Strength",alignmentPitchReset:"No change",alignmentPitchResetAll:"Reset",alignmentPitchPreview:"Preview accent",alignmentPitchRendering:"Rendering WORLD accent edits…",alignmentPitchComplete:"Accent preview is ready.",alignmentPitchHint:"Choose the accented syllable for each word, then set its strength with the slider. 0% leaves the audio unchanged; 100% applies the maximum accent.",alignmentAccentWeak:"Weak",alignmentAccentNormal:"Normal",alignmentAccentStrong:"Strong",alignmentAccentNone:"No change",alignmentAccentWord:"Word",alignmentAccentDetails:"Technical details",importWav:"Import WAV",analyzeAccent:"Analyze accent",importingWav:"Importing WAV…",importWavTxtComplete:"WAV + TXT imported",importWavComplete:"WAV imported",enterFinnishText:"Enter the corresponding Finnish text, then click Analyze accent.",accentSupportMissing:"Accent support is not installed.",accentSupportInstallHelp:"Accent editing requires WSL2, Docker Desktop, Aalto alignment, and PyWORLD. Missing components can be installed automatically.",accentSupportInstalling:"Installing Accent support in a separate window…",accentSupportInstallerOpened:"The Accent support installer has opened. Complete the steps in that window.",accentSupportReboot:"Windows must be restarted to continue installing Accent support. Restart Windows, then click the same button again.",accentSupportInstallFailed:"Accent support installation is not complete. Click the install button to try again.",
+    voiceIntro:"Enter Finnish text to convert it directly into the selected character voice.",alignmentIntro:"Forced alignment runs automatically after voice generation. Choose the accented syllable for each word and adjust its strength.",alignmentReady:"Forced alignment starts automatically after voice generation.",alignmentRunning:"Aligning speech with native Windows Aalto/Kaldi…",alignmentComplete:"Forced alignment complete.",alignmentInputError:"Accent processing failed. Check the input text. Numbers and special characters cannot be syllabified.",alignmentWord:"Word",alignmentPhone:"Phone",alignmentSyllable:"Syllable",alignmentWords:"Words",alignmentPhones:"Phones",alignmentSyllables:"Syllables",alignmentStart:"Start",alignmentEnd:"End",alignmentDuration:"Duration",alignmentMeanF0:"Median F0",alignmentF0Note:"F0: pYIN, voiced frames only; outliers rejected; median",alignmentF0Warning:"F0 warning",alignmentF0Outlier:"outlier / uncertain",alignmentSource:"Source",alignmentTranscript:"Syllabified input text",alignmentPitchEdit:"Accent",alignmentLengthEdit:"Strength",alignmentPitchReset:"No change",alignmentPitchResetAll:"Reset",alignmentPitchPreview:"Preview accent",alignmentPitchRendering:"Rendering WORLD accent edits…",alignmentPitchComplete:"Accent preview is ready.",alignmentPitchHint:"Choose the accented syllable for each word, then set its strength with the slider. 0% leaves the audio unchanged; 100% applies the maximum accent.",alignmentAccentWeak:"Weak",alignmentAccentNormal:"Normal",alignmentAccentStrong:"Strong",alignmentAccentNone:"No change",alignmentAccentWord:"Word",alignmentAccentDetails:"Technical details",importWav:"Import WAV",analyzeAccent:"Analyze accent",importingWav:"Importing WAV…",importWavTxtComplete:"WAV + TXT imported",importWavComplete:"WAV imported",enterFinnishText:"Enter the corresponding Finnish text, then click Analyze accent.",accentSupportMissing:"The Accent engine is not ready.",accentSupportInstallHelp:"The Accent engine is installed automatically by setup.bat. Run setup.bat again. WSL2 and Docker Desktop are not required.",accentSupportInstalling:"Installing Accent support in a separate window…",accentSupportInstallerOpened:"The Accent support installer has opened. Complete the steps in that window.",accentSupportReboot:"Windows must be restarted to continue installing Accent support. Restart Windows, then click the same button again.",accentSupportInstallFailed:"Accent support installation is not complete. Click the install button to try again.",
     batchIntro:"Generate a long queue of voice clips automatically. Optionally create a same-name .txt file for each .wav file for subtitle and video editing workflows. It can run unattended overnight, with Windows sleep prevented while the queue is active.",
     batchLinesHelp:"Each non-empty line creates one .wav file such as 001_seed123456.wav. When Create subtitle TXT is enabled, a same-name .txt file is created too. All lines use the default settings below.",
     batchCsvHelp:"CSV columns: filename,text,character,pitch,index_rate,protect,expression,seed. Only text is required. filename is optional: leave it blank for 001_seed123456.wav, or use intro to get 001_intro_seed123456.wav. seed is optional: leave it blank to use the Batch Seed / Fix seed setting, or enter a number to fix the TTS seed for that row.",
@@ -479,22 +476,15 @@ function updateVoiceModelHint(){const v=state.voices[$('voice').value];if(!v)ret
 function applyVoice(){const v=state.voices[$('voice').value];if(!v)return;$('pitch').value=v.pitch;$('index').value=v.index_rate;$('protect').value=v.protect;['pitch','index','protect'].forEach(x=>$(x).dispatchEvent(new Event('input')));updateVoiceModelHint()}
 
 function renderAccentSupportState(j){
-  accentSupportInstalled=!!(j&&j.installed);
-  const installPanel=$('accentInstallPanel'),editorPanel=$('accentEditorPanel'),status=$('accentInstallStatus'),analyzeBtn=$('analyzeAccent');
+  accentSupportInstalled=!!(j&&j.ready);
+  const installPanel=$('accentInstallPanel'),editorPanel=$('accentEditorPanel'),analyzeBtn=$('analyzeAccent');
   if(installPanel)installPanel.style.display=accentSupportInstalled?'none':'block';
   if(editorPanel)editorPanel.style.display=accentSupportInstalled?'block':'none';
   if(accentSupportInstalled){
-    if(status)clearLocalizedStatus(status);
     if(analyzeBtn&&$('player').classList.contains('show')&&$('text').value.trim())analyzeBtn.style.display='inline-flex';
-    if(accentSupportPollTimer){clearInterval(accentSupportPollTimer);accentSupportPollTimer=null;}
-    return;
+  }else if(analyzeBtn){
+    analyzeBtn.style.display='none';
   }
-  if(analyzeBtn)analyzeBtn.style.display='none';
-  if(!status)return;
-  const stateName=String((j&&j.installer_state)||'');
-  if(j&&j.reboot_required){setLocalizedStatus(status,'accentSupportReboot');if(accentSupportPollTimer){clearInterval(accentSupportPollTimer);accentSupportPollTimer=null;}}
-  else if(stateName==='error'){setLocalizedStatus(status,'accentSupportInstallFailed');if(accentSupportPollTimer){clearInterval(accentSupportPollTimer);accentSupportPollTimer=null;}}
-  else if(['starting','installing_pyworld','installing_wsl','installing_docker','starting_docker','pulling_image'].includes(stateName)){setLocalizedStatus(status,'accentSupportInstalling');}
 }
 async function checkAccentSupport(){
   try{
@@ -502,22 +492,10 @@ async function checkAccentSupport(){
     if(r.ok&&j.ok)renderAccentSupportState(j);
   }catch(e){console.error(e)}
 }
-async function installAccentSupport(){
-  const btn=$('installAccentSupport'),status=$('accentInstallStatus');if(btn)btn.disabled=true;
-  try{
-    if(status)setLocalizedStatus(status,'accentSupportInstalling');
-    const r=await fetch('/api/accent-support/install',{method:'POST'});const j=await r.json();
-    if(!r.ok||!j.ok)throw new Error(j.error||'Could not start Accent support installer');
-    if(status)setLocalizedStatus(status,'accentSupportInstallerOpened');
-    if(accentSupportPollTimer)clearInterval(accentSupportPollTimer);
-    accentSupportPollTimer=setInterval(checkAccentSupport,3000);
-    setTimeout(checkAccentSupport,800);
-  }catch(e){if(status){clearLocalizedStatus(status);status.textContent='✕ '+e.message;}alert(e.message)}finally{if(btn)btn.disabled=false}
-}
 
 async function generateVoice(){
   const btn=$('generate'),status=$('status');btn.disabled=true;btn.textContent='Generating…';$('player').classList.remove('show');setLocalizedStatus(status,'generating');
-  $('alignmentStatus').textContent='';$('alignmentResult').innerHTML='';const analyzeBtn=$('analyzeAccent');if(analyzeBtn)analyzeBtn.style.display='none';
+  clearLocalizedStatus($('alignmentStatus'));$('alignmentResult').innerHTML='';const analyzeBtn=$('analyzeAccent');if(analyzeBtn)analyzeBtn.style.display='none';
   try{
     const r=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:$('text').value,voice:$('voice').value,pitch:Number($('pitch').value),index_rate:Number($('index').value),protect:Number($('protect').value),expression:Number($('expression').value),seed:Number($('seed').value),fix_seed:$('fixSeed').checked})});
     const j=await r.json();if(!r.ok||!j.ok)throw new Error(j.error||'Generation failed');
@@ -657,14 +635,21 @@ async function runAccentAnalysis(showAlert=true){
   try{
     const r=await fetch('/api/alignment/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({text:$('text').value})});
     const raw=await r.text();let j;try{j=JSON.parse(raw)}catch(_){throw new Error('Accent analysis server error ('+r.status+').')}
-    if(!r.ok||!j.ok)throw new Error(j.error||'Accent analysis failed');
+    if(!r.ok||!j.ok){const err=new Error(j.error||'Accent analysis failed');err.code=j.code||'';throw err;}
     renderAlignment(j.words,j.phones,j.syllables,j.source,j.syllabified_transcript||j.transcript||'',j.f0_warning||'');
     setLocalizedStatus(status,'alignmentComplete','✓ ');
     const analyzeBtn=$('analyzeAccent');if(analyzeBtn)analyzeBtn.style.display='none';
     return true;
   }catch(e){
-    status.textContent='✕ '+e.message;
-    if(showAlert)alert(e.message);
+    const inputCodes=new Set(['native_g2p_failed','native_phone_missing','transcript_missing']);
+    if(inputCodes.has(e.code)){
+      setLocalizedStatus(status,'alignmentInputError','✕ ');
+      if(showAlert)alert(ht('alignmentInputError'));
+    }else{
+      clearLocalizedStatus(status);
+      status.textContent='✕ '+e.message;
+      if(showAlert)alert(e.message);
+    }
     return false;
   }
 }

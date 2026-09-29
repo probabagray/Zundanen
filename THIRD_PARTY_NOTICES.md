@@ -1,6 +1,6 @@
-# Third-party notices
+﻿# Third-party notices
 
-Zundanen does not redistribute the following upstream projects or their model files in this repository. The normal setup and the optional Accent support installer download required components from their upstream distribution locations.
+Zundanen v1.1.0 uses several third-party projects. This source archive does not include the large generated `runtime/` environments. The Windows-native Aalto/Kaldi runtime may be distributed as a separate Zundanen release asset prepared from the projects listed below; retain the applicable upstream license notices with any redistributed binaries or model assets.
 
 - **Finnish-NLP/Chatterbox-Finnish** — MIT license  
   https://huggingface.co/Finnish-NLP/Chatterbox-Finnish
@@ -17,19 +17,26 @@ Zundanen does not redistribute the following upstream projects or their model fi
   https://pytorch.org/
 - **Docker Desktop** — Docker Subscription Service Agreement applies  
   https://docs.docker.com/subscription-billing/desktop-license/  
-  Used only by the optional Accent support. Docker Desktop is not redistributed
-  in this repository and is installed separately through WinGet.
+  Used only by the legacy Accent compatibility fallback. Docker Desktop is not redistributed
+  or installed by the normal v1.1.0 setup. Developers may install it separately when explicitly
+  testing the legacy Docker backend.
 - **Aalto Speech / Finnish Forced Alignment** — MIT license  
   https://github.com/aalto-speech/finnish-forced-alignment
 - **Lingsoft / aalto-kaldi-align-elg** — MIT license  
   https://github.com/lingsoft/aalto-kaldi-align-elg  
-  Optional Docker API wrapper used by Accent support for Finnish word/syllable alignment. The Docker image is downloaded separately by the Accent support installer and is not redistributed in this repository.
+  Source used by the v1.1 Windows-native runtime preparation workflow to export selected Aalto Finnish alignment model/configuration/G2P assets. The Docker image itself is not redistributed. The separate native runtime asset includes the applicable Aalto MIT license and Lingsoft source notice.
+- **Kaldi** — Apache License 2.0  
+  https://github.com/kaldi-asr/kaldi  
+  Zundanen v1.1 uses selected Kaldi Windows executables for the native Aalto alignment backend. Kaldi binaries are distributed separately in `Zundanen-Aalto-Native-v1.1.0.zip`; that runtime asset includes the Apache 2.0 license and a Kaldi attribution notice.
+- **Intel oneMKL** — Intel software license terms apply  
+  https://www.intel.com/content/www/us/en/developer/tools/oneapi/onemkl-download.html  
+  The tested Windows Kaldi build uses oneMKL. The Accent support installer can install oneMKL through WinGet when the packaged Kaldi executables require it. oneMKL is not included in this source archive.
 - **WORLD Vocoder** — modified BSD license  
   https://github.com/mmorise/World  
   Used by the optional Accent editor for speech analysis, manipulation, and resynthesis.
 - **PyWORLD** — MIT license  
   https://github.com/JeremyCCHsu/Python-Wrapper-for-World-Vocoder  
-  Python wrapper installed into the local RVC environment only when optional Accent support is installed; not redistributed in this repository.
+  Python wrapper installed into the local RVC environment by the v1.1.0 setup for Accent editing; not redistributed in this repository or native runtime asset.
 
 Character voices, datasets, RVC `.pth` files and `.index` files may carry separate rights or usage conditions that are not granted by this application's license.
 

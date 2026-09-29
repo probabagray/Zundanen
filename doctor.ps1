@@ -5,6 +5,7 @@ $TtsPython = Join-Path $Root "runtime\tts\.venv\Scripts\python.exe"
 $TtsRepo = Join-Path $Root "runtime\tts\Chatterbox-Finnish"
 $RvcPython = Join-Path $Root "runtime\rvc\.venv\Scripts\python.exe"
 $RvcRepo = Join-Path $Root "runtime\rvc\RVC-WebUI"
+$NativeProbe = Join-Path $Root "aalto_native_probe.py"
 
 $checks = @(
     @("TTS Python", $TtsPython),
@@ -41,20 +42,27 @@ if (Test-Path $RvcPython) {
     if ($LASTEXITCODE -ne 0) { $failed = $true }
 }
 
-$Docker = Get-Command docker -ErrorAction SilentlyContinue
-if ($null -ne $Docker) {
-    try {
-        docker info --format "{{.ServerVersion}}" *> $null
-        if ($LASTEXITCODE -eq 0) {
-            Write-Host "[OK]   Docker (optional Accent support)" -ForegroundColor Green
-        } else {
-            Write-Host "[OPT]  Docker is installed but not running. Start Docker Desktop to use Accent editing." -ForegroundColor Yellow
-        }
-    } catch {
-        Write-Host "[OPT]  Docker could not be checked. Accent support is optional." -ForegroundColor Yellow
+$nativeReady = $false
+if ((Test-Path $NativeProbe) -and (Test-Path $RvcPython)) {
+    & $RvcPython $NativeProbe *> $null
+    if ($LASTEXITCODE -eq 0) {
+        Write-Host "[OK]   Native Windows Aalto/Kaldi (Accent)" -ForegroundColor Green
+        $nativeReady = $true
+    } else {
+        Write-Host "[MISS] Native Windows Aalto/Kaldi Accent engine is not ready. Run setup.bat again." -ForegroundColor Red
+        $failed = $true
+    }
+
+    & $RvcPython -c "import pyworld" *> $null
+    if ($LASTEXITCODE -eq 0) {
+        Write-Host "[OK]   PyWORLD (Accent)" -ForegroundColor Green
+    } else {
+        Write-Host "[MISS] PyWORLD is missing. Run setup.bat again." -ForegroundColor Red
+        $failed = $true
     }
 } else {
-    Write-Host "[OPT]  Docker Desktop not found. Required only for optional Accent support." -ForegroundColor Yellow
+    Write-Host "[MISS] Accent probe or RVC Python is missing. Run setup.bat again." -ForegroundColor Red
+    $failed = $true
 }
 
 if ($failed) {

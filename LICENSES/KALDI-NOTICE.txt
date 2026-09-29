@@ -1,0 +1,22 @@
+Kaldi attribution notice
+========================
+
+This Zundanen native runtime contains selected Windows executables built from
+the Kaldi speech recognition toolkit.
+
+Upstream project:
+https://github.com/kaldi-asr/kaldi
+
+License:
+Apache License 2.0. The full Apache 2.0 license text is included in
+KALDI-APACHE-2.0.txt.
+
+Kaldi's upstream COPYING file explains that Kaldi source files are licensed by
+their respective authors under Apache License 2.0 and also records third-party
+source material. In particular, Kaldi includes material from OpenFst under
+Apache License 2.0; the upstream notice identifies:
+
+Copyright 2005-2010 Google, Inc.
+
+For the complete current Kaldi legal notice and contributor information, see:
+https://github.com/kaldi-asr/kaldi/blob/master/COPYING

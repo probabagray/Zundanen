@@ -1,0 +1,21 @@
+Lingsoft Aalto/Kaldi runtime source notice
+=========================================
+
+Zundanen's Windows-native Aalto runtime preparation workflow exports selected
+Aalto Finnish alignment model, configuration, and G2P assets from:
+
+lingsoft/aalto-kaldi-align:5.1.1-elg
+https://hub.docker.com/r/lingsoft/aalto-kaldi-align
+
+The Docker image itself is not redistributed inside the Zundanen native runtime
+ZIP. Only the selected runtime assets required by the Windows-native alignment
+backend are exported during development and packaged.
+
+Docker Hub identifies this image as MIT licensed and attributes the original
+forced aligner to Juho Leinonen, Sami Virpioja, and Mikko Kurimo. The upstream
+Aalto Finnish Forced Alignment MIT license is reproduced separately in:
+
+AALTO-FINNISH-FORCED-ALIGNMENT-MIT.txt
+
+Related source project:
+https://github.com/aalto-speech/finnish-forced-alignment

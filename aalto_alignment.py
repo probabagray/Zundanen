@@ -711,6 +711,15 @@ def _install_phone_alignment_patch(docker: str, container_name: str) -> None:
             "phone_patch_failed",
         )
 
+def native_alignment_status() -> dict:
+    """Return Windows-native Aalto runtime status without importing it eagerly."""
+    try:
+        from aalto_native_alignment import native_status
+        return native_status()
+    except Exception as exc:
+        return {"ready": False, "windows": os.name == "nt", "missing": [str(exc)]}
+
+
 def run_alignment(
     wav_path: Path,
     transcript: str,
@@ -736,6 +745,31 @@ def run_alignment(
             "audio_too_large",
         )
 
+    backend = os.environ.get("ZUNDANEN_AALTO_BACKEND", "auto").strip().lower() or "auto"
+    if backend not in {"auto", "native", "docker"}:
+        raise AlignmentError(
+            "ZUNDANEN_AALTO_BACKEND must be auto, native, or docker.",
+            "invalid_alignment_backend",
+        )
+
+    native = native_alignment_status()
+    if backend == "native" or (backend == "auto" and native.get("ready")):
+        try:
+            from aalto_native_alignment import NativeAlignmentError, run_native_alignment
+            with tempfile.TemporaryDirectory(prefix="zundanen_align_native_") as tmp:
+                normalized_wav = Path(tmp) / "alignment_16k.wav"
+                _normalize_for_aligner(wav_path, normalized_wav)
+                return run_native_alignment(normalized_wav, transcript)
+        except Exception as exc:
+            # When the native runtime is available, a native alignment failure
+            # is a real alignment/input error. Do not hide it by falling back to
+            # Docker, which can otherwise produce a misleading Docker-not-running
+            # message for text that simply cannot be aligned/syllabified.
+            code = getattr(exc, "code", "native_alignment_failed")
+            raise AlignmentError(str(exc), code) from exc
+
+    # Compatibility/developer fallback only: this is reached when Docker was
+    # explicitly requested, or when auto mode cannot use the native runtime.
     docker = ensure_docker_ready()
     image_downloaded = ensure_image(docker)
     port = _free_local_port()

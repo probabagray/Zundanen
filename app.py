@@ -20,11 +20,12 @@ from pathlib import Path
 from flask import Flask, jsonify, request, send_from_directory
 
 from rvc_locale import ensure_rvc_language_override
-from aalto_alignment import AlignmentError, run_alignment
+from aalto_alignment import AlignmentError, native_alignment_status, run_alignment
 
 logging.getLogger("werkzeug").setLevel(logging.ERROR)
 
 APP_DIR = Path(__file__).resolve().parent
+APP_VERSION = "1.1.0"
 CONFIG_PATH = APP_DIR / "config.json"
 OUTPUT_DIR = APP_DIR / "outputs"
 TEMP_DIR = APP_DIR / "temp"
@@ -37,9 +38,6 @@ PREVIEW_SOURCE_META_PATH = TEMP_DIR / "preview_source.json"
 PITCH_EDIT_TTS_WAV_PATH = TEMP_DIR / "tts_pitch_preview.wav"
 PITCH_EDIT_WAV_PATH = TEMP_DIR / "voice_pitch_preview.wav"
 WORLD_ACCENT_WORKER_PATH = APP_DIR / "world_accent_worker.py"
-ACCENT_SUPPORT_BAT_PATH = APP_DIR / "install_accent_support.bat"
-ACCENT_SUPPORT_PS1_PATH = APP_DIR / "install_accent_support.ps1"
-ACCENT_SUPPORT_STATUS_PATH = APP_DIR / "runtime" / "accent_support_status.json"
 OUTPUT_DIR.mkdir(exist_ok=True)
 TEMP_DIR.mkdir(exist_ok=True)
 for preview_temp in (
@@ -879,72 +877,6 @@ def _run_quiet(command: list[str], timeout: int = 15) -> subprocess.CompletedPro
         return None
 
 
-def _find_docker_desktop_exe() -> Path | None:
-    if os.name != "nt":
-        return None
-    candidates: list[Path] = []
-    program_files = os.environ.get("ProgramFiles")
-    local_app_data = os.environ.get("LOCALAPPDATA")
-    if program_files:
-        pf = Path(program_files)
-        candidates.extend([
-            pf / "Docker" / "Docker" / "Docker Desktop.exe",
-            pf / "Docker" / "Docker Desktop.exe",
-        ])
-    if local_app_data:
-        la = Path(local_app_data)
-        candidates.extend([
-            la / "Programs" / "DockerDesktop" / "Docker Desktop.exe",
-            la / "Programs" / "Docker" / "Docker" / "Docker Desktop.exe",
-            la / "Docker" / "Docker Desktop.exe",
-        ])
-    for candidate in candidates:
-        if candidate.exists():
-            return candidate
-    return None
-
-
-def _find_docker_cli() -> str | None:
-    found = shutil.which("docker")
-    if found:
-        return found
-    desktop = _find_docker_desktop_exe()
-    candidates: list[Path] = []
-    if desktop:
-        candidates.extend([
-            desktop.parent / "resources" / "bin" / "docker.exe",
-            desktop.parent / "resources" / "docker.exe",
-        ])
-    program_files = os.environ.get("ProgramFiles")
-    local_app_data = os.environ.get("LOCALAPPDATA")
-    if program_files:
-        pf = Path(program_files)
-        candidates.extend([
-            pf / "Docker" / "Docker" / "resources" / "bin" / "docker.exe",
-            pf / "Docker" / "Docker" / "resources" / "docker.exe",
-        ])
-    if local_app_data:
-        la = Path(local_app_data)
-        candidates.extend([
-            la / "Programs" / "DockerDesktop" / "resources" / "bin" / "docker.exe",
-            la / "Programs" / "Docker" / "Docker" / "resources" / "bin" / "docker.exe",
-        ])
-    for candidate in candidates:
-        if candidate.exists():
-            return str(candidate)
-    return None
-
-
-def _read_accent_installer_status() -> dict:
-    if not ACCENT_SUPPORT_STATUS_PATH.exists():
-        return {}
-    try:
-        data = json.loads(ACCENT_SUPPORT_STATUS_PATH.read_text(encoding="utf-8-sig"))
-        return data if isinstance(data, dict) else {}
-    except Exception:
-        return {}
-
-
 def _accent_support_status() -> dict:
     cfg = load_config()
     rvc_python = Path(str(cfg.get("rvc_python") or ""))
@@ -953,46 +885,21 @@ def _accent_support_status() -> dict:
         proc = _run_quiet([str(rvc_python), "-c", "import pyworld"], timeout=20)
         pyworld_ok = bool(proc and proc.returncode == 0)
 
-    wsl_ok = False
-    if os.name == "nt":
-        wsl = Path(os.environ.get("WINDIR", r"C:\Windows")) / "System32" / "wsl.exe"
-        if wsl.exists():
-            proc = _run_quiet([str(wsl), "--status"], timeout=20)
-            wsl_ok = bool(proc and proc.returncode == 0)
-
-    docker_desktop = _find_docker_desktop_exe()
-    docker_cli = _find_docker_cli()
-    docker_running = False
-    image_ready = False
-    if docker_cli:
-        proc = _run_quiet([docker_cli, "info", "--format", "{{.ServerVersion}}"], timeout=10)
-        docker_running = bool(proc and proc.returncode == 0)
-        if docker_running:
-            inspect = _run_quiet(
-                [docker_cli, "image", "inspect", "lingsoft/aalto-kaldi-align:5.1.1-elg"],
-                timeout=20,
-            )
-            image_ready = bool(inspect and inspect.returncode == 0)
-
     worker_ok = WORLD_ACCENT_WORKER_PATH.exists()
-    installed = bool(os.name == "nt" and wsl_ok and docker_desktop and pyworld_ok and worker_ok)
-    ready = bool(installed and docker_running)
-    installer = _read_accent_installer_status()
+    native = native_alignment_status()
+    native_ready = bool(native.get("ready"))
+    ready = bool(os.name == "nt" and pyworld_ok and worker_ok and native_ready)
     return {
         "ok": True,
-        "installed": installed,
+        "installed": ready,
         "ready": ready,
         "components": {
-            "wsl2": wsl_ok,
-            "docker_desktop": bool(docker_desktop),
-            "docker_running": docker_running,
-            "aalto_image": image_ready,
+            "aalto_native": native_ready,
+            "aalto_native_root": str(native.get("root") or ""),
+            "aalto_native_missing": native.get("missing") or [],
             "pyworld": pyworld_ok,
             "world_worker": worker_ok,
         },
-        "installer_state": str(installer.get("state") or ""),
-        "installer_message": str(installer.get("message") or ""),
-        "reboot_required": bool(installer.get("reboot_required", False)),
     }
 
 
@@ -1006,6 +913,7 @@ def state():
     cfg = load_config()
     return jsonify(
         {
+            "version": APP_VERSION,
             "voices": scan_voices(cfg),
             "tts": cfg["tts"],
             "config": {
@@ -1024,38 +932,6 @@ def state():
 @app.get("/api/accent-support/status")
 def accent_support_status():
     return jsonify(_accent_support_status())
-
-
-@app.post("/api/accent-support/install")
-def accent_support_install():
-    if os.name != "nt":
-        return jsonify({"ok": False, "error": "Accent support installer is available on Windows only."}), 400
-    if not ACCENT_SUPPORT_BAT_PATH.exists() or not ACCENT_SUPPORT_PS1_PATH.exists():
-        return jsonify({"ok": False, "error": "Accent support installer files are missing."}), 500
-    try:
-        # ShellExecute with the runas verb opens the installer in its own visible
-        # elevated console. This keeps UAC/restart/first-run Docker prompts out of
-        # the web server process and lets a novice follow the installation safely.
-        import ctypes
-        try:
-            ACCENT_SUPPORT_STATUS_PATH.unlink(missing_ok=True)
-        except OSError:
-            pass
-        cmd_exe = Path(os.environ.get("WINDIR", r"C:\Windows")) / "System32" / "cmd.exe"
-        params = f'/c ""{ACCENT_SUPPORT_BAT_PATH}""'
-        result = ctypes.windll.shell32.ShellExecuteW(
-            None,
-            "runas",
-            str(cmd_exe),
-            params,
-            str(APP_DIR),
-            1,
-        )
-        if int(result) <= 32:
-            raise OSError(f"Windows could not start the installer (ShellExecute code {int(result)}).")
-        return jsonify({"ok": True, "started": True})
-    except Exception as exc:
-        return jsonify({"ok": False, "error": str(exc)}), 500
 
 
 @app.post("/api/config")
@@ -1189,7 +1065,7 @@ def alignment_run():
         }), 400
 
     # Do not let a new Voice/Batch generation replace the source audio
-    # while Docker is aligning it.
+    # while forced alignment is reading it.
     if not generation_lock.acquire(blocking=False):
         return jsonify({
             "ok": False,
